@@ -7,8 +7,14 @@ COW = r'''
 '''
 def text2arr(text):
     lines = []
-    l = ""
-    llen = 0
+    start_space_len = len(text) - len(text.lstrip())
+    if start_space_len > 1:
+        start_space_len = 1
+    end_space_len = len(text) - len(text.rstrip())
+    if end_space_len > 1:
+        end_space_len = 1
+    l = " " * start_space_len
+    llen = start_space_len
     for w in text.split():
         if l:
             if len(w) + 1 + llen > 39:
@@ -17,33 +23,35 @@ def text2arr(text):
                     while(len(w) > 39):
                         lines.append(w[0:39])
                         w = w[39:]
+                    l = w
                 else:
                     l = w
                     llen = len(w)
             else:
                 llen = llen + len(w) + 1
-                l = l + " " + w
+                if l[-1] == " ":
+                    l = l + w
+                else:
+                    l = l + " " + w
         else:
             if len(w) + llen > 39:
                 if len(w) > 39:
                     while(len(w) > 39):
-                        lines.append(w[0:40])
-                        w = w[40:]
+                        lines.append(w[0:39])
+                        w = w[39:]
+                    l = w
                 else:
                     l = w
                     llen = len(w)
             else:
                 llen = llen + len(w)
                 l = l + w
-    lines.append(l)
+    lines.append(l + " " * end_space_len)
+    max_len = reduce(lambda x,y: x if x > y else y, [len(lll) for lll in lines], 0)
     if len(lines) == 1:
         return lines
     else:
-        return [l + (38 - len(l)) * ' ' for l in lines]
-        #ll = []
-        #for l in lines:
-        #    print len(l)
-        #    if lsf
+        return [l + (max_len - len(l)) * ' ' for l in lines]
 def wrap(arr):
     head = "\n _" + len(arr[0])* "_" + "_\n"
     tail = " -" + len(arr[0])* "-" + "-"
